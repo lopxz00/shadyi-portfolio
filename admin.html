@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cyan">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHADYI — Admin Panel</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Main site styles (needed for base variables used by admin.css) -->
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Admin panel styles -->
+  <link rel="stylesheet" href="admin.css" />
+
+  <style>
+    /* ── Standalone Admin Page Wrapper ── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #030812;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Auth Gate Screen */
+    #auth-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 10010;
+      background: #030812;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    #auth-gate.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .auth-box {
+      width: min(420px, 92vw);
+      background: rgba(6, 16, 32, 0.95);
+      border: 1px solid rgba(0, 229, 255, 0.35);
+      border-radius: 16px;
+      padding: 2.4rem 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,229,255,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+    }
+
+    .auth-logo {
+      text-align: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 1.8rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .auth-logo span {
+      color: #00e5ff;
+    }
+
+    .auth-tag {
+      display: block;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: rgba(0, 229, 255, 0.7);
+      margin-top: 0.3rem;
+    }
+
+    .auth-divider {
+      height: 1px;
+      background: rgba(0, 229, 255, 0.15);
+    }
+
+    .auth-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .auth-field label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: rgba(160, 195, 225, 0.6);
+      text-transform: uppercase;
+    }
+
+    .auth-field input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .auth-field input:focus {
+      border-color: rgba(0, 229, 255, 0.6);
+      box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.08);
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, #00e5ff 0%, #0284c7 100%);
+      border: none;
+      border-radius: 8px;
+      color: #02060d;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
+    }
+
+    .auth-btn:active {
+      transform: translateY(0);
+    }
+
+    .auth-msg {
+      font-size: 0.82rem;
+      text-align: center;
+      min-height: 1.2em;
+      font-family: 'JetBrains Mono', monospace;
+      color: #ff4d64;
+      letter-spacing: 0.04em;
+    }
+
+    .auth-msg.success {
+      color: #10b981;
+    }
+
+    /* Loading spinner during Firebase check */
+    #auth-loading {
+      position: fixed;
+      inset: 0;
+      z-index: 10020;
+      background: #030812;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s ease;
+    }
+
+    #auth-loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 3px solid rgba(0, 229, 255, 0.15);
+      border-top-color: #00e5ff;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Main admin page content */
+    #admin-page {
+      display: none;
+      min-height: 100vh;
+    }
+
+    /* ── Top Navigation Bar ── */
+    .adm-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: rgba(3, 8, 20, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0, 229, 255, 0.18);
+      gap: 16px;
+    }
+
+    .adm-topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .adm-topbar-logo {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .adm-topbar-logo span {
+      color: #00e5ff;
+    }
+
+    .adm-topbar-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      padding: 3px 9px;
+      border-radius: 4px;
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.22);
+      color: #00e5ff;
+    }
+
+    .adm-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .adm-user-email {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: rgba(210, 235, 255, 0.55);
+    }
+
+    .adm-btn-logout {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: rgba(255, 51, 75, 0.1);
+      border: 1px solid rgba(255, 51, 75, 0.3);
+      border-radius: 999px;
+      color: #ff9494;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .adm-btn-logout:hover {
+      background: rgba(255, 51, 75, 0.2);
+      border-color: rgba(255, 51, 75, 0.6);
+      color: #ff4d64;
+    }
+
+    /* ── Layout ── */
+    .adm-layout {
+      display: flex;
+      min-height: calc(100vh - 61px);
+    }
+
+    /* ── Sidebar ── */
+    .adm-sidebar {
+      width: 230px;
+      background: rgba(3, 9, 18, 0.98);
+      border-right: 1px solid rgba(0, 229, 255, 0.12);
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 61px;
+      height: calc(100vh - 61px);
+      overflow-y: auto;
+    }
+
+    .adm-sidebar-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      color: rgba(160, 195, 225, 0.35);
+      text-transform: uppercase;
+      padding: 10px 12px 4px;
+    }
+
+    .adm-nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 13px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: rgba(210, 235, 255, 0.65);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.83rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .adm-nav-btn .nav-icon { font-size: 1rem; flex-shrink: 0; }
+
+    .adm-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.07);
+    }
+
+    .adm-nav-btn.active {
+      background: rgba(0, 229, 255, 0.08);
+      border-color: rgba(0, 229, 255, 0.25);
+      color: #00e5ff;
+      font-weight: 600;
+    }
+
+    .adm-nav-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: #ff334b;
+      color: #fff;
+      border-radius: 999px;
+      font-size: 0.6rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── Main Content Area ── */
+    .adm-main {
+      flex: 1;
+      padding: 28px 32px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ── Tab Panels ── */
+    .adm-tab {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      animation: fadeInUp 0.25s ease;
+    }
+
+    .adm-tab.active {
+      display: flex;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Section Header ── */
+    .adm-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .adm-section-sub {
+      font-size: 0.82rem;
+      color: rgba(160, 195, 225, 0.5);
+      margin-top: 2px;
+    }
+
+    /* ── Stats Row ── */
+    .adm-stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+    }
+
+    .adm-stat {
+      padding: 18px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: border-color 0.2s;
+    }
+
+    .adm-stat:hover { border-color: rgba(0, 229, 255, 0.25); }
+
+    .adm-stat-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #00e5ff;
+      line-height: 1;
+    }
+
+    .adm-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: rgba(160, 195, 225, 0.5);
+      text-transform: uppercase;
+    }
+
+    /* ── Cards Grid ── */
+    .adm-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .adm-card {
+      padding: 20px;
+      background: rgba(10, 24, 46, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .adm-card:hover {
+      border-color: rgba(0, 229, 255, 0.35);
+      background: rgba(0, 229, 255, 0.04);
+      transform: translateY(-2px);
+    }
+
+    .adm-card-icon { font-size: 1.7rem; margin-bottom: 10px; }
+
+    .adm-card h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .adm-card p {
+      font-size: 0.78rem;
+      color: rgba(160, 195, 225, 0.5);
+      line-height: 1.5;
+    }
+
+    /* ── Form Styles ── */
+    .adm-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .adm-form-grid.single { grid-template-columns: 1fr; }
+
+    .adm-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .adm-field.span-2 { grid-column: span 2; }
+
+    .adm-field label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: rgba(160, 195, 225, 0.55);
+      text-transform: uppercase;
+    }
+
+    .adm-field input,
+    .adm-field textarea,
+    .adm-field select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.87rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      resize: vertical;
+    }
+
+    .adm-field input:focus,
+    .adm-field textarea:focus,
+    .adm-field select:focus {
+      border-color: rgba(0, 229, 255, 0.5);
+      box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.07);
+    }
+
+    .adm-field select option { background: #061020; }
+
+    /* ── Buttons ── */
+    .adm-btn-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .adm-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid;
+    }
+
+    .adm-btn.primary {
+      background: linear-gradient(135deg, #00e5ff 0%, #0284c7 100%);
+      border-color: transparent;
+      color: #02060d;
+      box-shadow: 0 0 18px rgba(0, 229, 255, 0.3);
+    }
+
+    .adm-btn.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 26px rgba(0, 229, 255, 0.5);
+    }
+
+    .adm-btn.secondary {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.1);
+      color: rgba(210, 235, 255, 0.8);
+    }
+
+    .adm-btn.secondary:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(0, 229, 255, 0.3);
+      color: #00e5ff;
+    }
+
+    .adm-btn.danger {
+      background: rgba(255, 51, 75, 0.1);
+      border-color: rgba(255, 51, 75, 0.3);
+      color: #ff9494;
+    }
+
+    .adm-btn.danger:hover {
+      background: rgba(255, 51, 75, 0.2);
+      border-color: rgba(255, 51, 75, 0.6);
+      color: #ff4d64;
+    }
+
+    /* ── Section Box ── */
+    .adm-box {
+      background: rgba(6, 16, 32, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .adm-box-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: rgba(0, 229, 255, 0.7);
+      text-transform: uppercase;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    /* ── Projects List ── */
+    .adm-project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .adm-project-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
+      background: rgba(5, 15, 30, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      gap: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .adm-project-item:hover {
+      border-color: rgba(0, 229, 255, 0.25);
+    }
+
+    .adm-project-info { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+
+    .adm-project-thumb {
+      width: 54px;
+      height: 40px;
+      border-radius: 6px;
+      background: #041424;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #00e5ff;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+      overflow: hidden;
+    }
+
+    .adm-project-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    .adm-project-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .adm-project-cat {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: rgba(0, 229, 255, 0.1);
+      color: #00e5ff;
+    }
+
+    .adm-project-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    /* ── Messages ── */
+    .adm-msg-item {
+      padding: 14px 18px;
+      background: rgba(6, 16, 32, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .adm-msg-item:hover { border-color: rgba(0, 229, 255, 0.3); }
+
+    .adm-msg-item.unread {
+      border-color: #00e5ff;
+      background: rgba(0, 229, 255, 0.04);
+      box-shadow: inset 3px 0 0 #00e5ff;
+    }
+
+    .adm-msg-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .adm-msg-name { font-weight: 700; font-size: 0.9rem; color: #fff; }
+
+    .adm-msg-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: rgba(160, 195, 225, 0.4);
+    }
+
+    .adm-msg-preview {
+      font-size: 0.8rem;
+      color: rgba(210, 235, 255, 0.6);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .adm-badge-new {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: #ff334b;
+      color: #fff;
+      font-weight: 800;
+      margin-left: 6px;
+    }
+
+    /* ── Theme Swatches ── */
+    .adm-theme-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .adm-theme-swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .adm-swatch-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.1);
+      transition: all 0.2s;
+    }
+
+    .adm-theme-swatch.active .adm-swatch-dot,
+    .adm-theme-swatch:hover .adm-swatch-dot {
+      border-color: #fff;
+      transform: scale(1.15);
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .adm-swatch-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: rgba(160, 195, 225, 0.5);
+    }
+
+    /* ── Toast ── */
+    #adm-toasts {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 10050;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .adm-toast {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: rgba(4, 14, 28, 0.97);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(0,229,255,0.2);
+      color: #fff;
+      font-size: 0.84rem;
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 340px;
+    }
+
+    .adm-toast.success { border-color: #10b981; box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(16,185,129,0.25); }
+    .adm-toast.error   { border-color: #ff334b; box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(255,51,75,0.25); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Toggle Switch ── */
+    .adm-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .adm-toggle-row:last-child { border-bottom: none; }
+
+    .adm-toggle-info h4 {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .adm-toggle-info p {
+      font-size: 0.75rem;
+      color: rgba(160, 195, 225, 0.5);
+    }
+
+    .adm-toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .adm-toggle input { opacity: 0; width: 0; height: 0; }
+
+    .adm-toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .adm-toggle-track::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      transition: all 0.25s;
+    }
+
+    .adm-toggle input:checked + .adm-toggle-track {
+      background: rgba(0, 229, 255, 0.2);
+      border-color: #00e5ff;
+      box-shadow: 0 0 10px rgba(0,229,255,0.3);
+    }
+
+    .adm-toggle input:checked + .adm-toggle-track::after {
+      left: calc(100% - 18px);
+      background: #00e5ff;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .adm-sidebar { width: 60px; padding: 8px 4px; }
+      .adm-sidebar-label,
+      .adm-nav-btn span:not(.adm-nav-count) { display: none; }
+      .adm-nav-btn { justify-content: center; padding: 10px; }
+      .adm-main { padding: 18px 16px; }
+      .adm-form-grid { grid-template-columns: 1fr; }
+      .adm-field.span-2 { grid-column: span 1; }
+      .adm-topbar { padding: 12px 16px; }
+      .adm-user-email { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     LOADING SPINNER (while checking auth)
+     ══════════════════════════════════════ -->
+<div id="auth-loading">
+  <div class="spinner"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     AUTH GATE (login form)
+     ══════════════════════════════════════ -->
+<div id="auth-gate" class="hidden">
+  <div class="auth-box">
+    <div>
+      <div class="auth-logo">SHAD<span>YI</span></div>
+      <span class="auth-tag">// ADMIN PANEL ACCESS</span>
+    </div>
+    <div class="auth-divider"></div>
+    <div class="auth-field">
+      <label>Username</label>
+      <input type="text" id="gate-user" placeholder="admin" autocomplete="username" />
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="gate-pass" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <div class="auth-msg" id="gate-msg"></div>
+    <button class="auth-btn" id="gate-submit">ENTER PANEL</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN ADMIN PAGE
+     ══════════════════════════════════════ -->
+<div id="admin-page">
+
+  <!-- Toast container -->
+  <div id="adm-toasts"></div>
+
+  <!-- Top Bar -->
+  <header class="adm-topbar">
+    <div class="adm-topbar-left">
+      <a href="index.html" class="adm-topbar-logo">SHAD<span>YI</span></a>
+      <span class="adm-topbar-tag">ADMIN</span>
+    </div>
+    <div class="adm-topbar-right">
+      <span class="adm-user-email" id="adm-logged-user"></span>
+      <button class="adm-btn-logout" id="adm-logout">⏻ LOGOUT</button>
+    </div>
+  </header>
+
+  <div class="adm-layout">
+
+    <!-- Sidebar -->
+    <aside class="adm-sidebar">
+      <span class="adm-sidebar-label">Main</span>
+      <button class="adm-nav-btn active" data-tab="dashboard">
+        <span>🏠 Dashboard</span>
+      </button>
+      <button class="adm-nav-btn" data-tab="projects">
+        <span>🎬 Projects</span>
+      </button>
+      <button class="adm-nav-btn" data-tab="inbox">
+        <span>💬 Messages</span>
+        <span class="adm-nav-count" id="inbox-count" style="display:none">0</span>
+      </button>
+
+      <span class="adm-sidebar-label">Content</span>
+      <button class="adm-nav-btn" data-tab="hero">
+        <span>⚡ Hero</span>
+      </button>
+      <button class="adm-nav-btn" data-tab="about">
+        <span>👤 About</span>
+      </button>
+      <button class="adm-nav-btn" data-tab="contact">
+        <span>📮 Contact</span>
+      </button>
+
+      <span class="adm-sidebar-label">System</span>
+      <button class="adm-nav-btn" data-tab="design">
+        <span>🎨 Design</span>
+      </button>
+      <button class="adm-nav-btn" data-tab="settings">
+        <span>⚙️ Settings</span>
+      </button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="adm-main">
+
+      <!-- ── DASHBOARD ── -->
+      <section class="adm-tab active" id="tab-dashboard">
+        <div>
+          <div class="adm-section-title">🏠 Dashboard</div>
+          <div class="adm-section-sub">Welcome back. Here's your portfolio at a glance.</div>
+        </div>
+
+        <div class="adm-stats-row" id="dash-stats">
+          <div class="adm-stat">
+            <div class="adm-stat-num" id="stat-projects">6</div>
+            <div class="adm-stat-label">Projects</div>
+          </div>
+          <div class="adm-stat">
+            <div class="adm-stat-num" id="stat-messages">0</div>
+            <div class="adm-stat-label">Messages</div>
+          </div>
+          <div class="adm-stat">
+            <div class="adm-stat-num" id="stat-unread">0</div>
+            <div class="adm-stat-label">Unread</div>
+          </div>
+        </div>
+
+        <div class="adm-cards-grid">
+          <div class="adm-card" onclick="switchTab('projects')">
+            <div class="adm-card-icon">🎬</div>
+            <h3>Projects</h3>
+            <p>Add, edit or remove portfolio projects and reels.</p>
+          </div>
+          <div class="adm-card" onclick="switchTab('inbox')">
+            <div class="adm-card-icon">💬</div>
+            <h3>Messages</h3>
+            <p>View contact form submissions from clients.</p>
+          </div>
+          <div class="adm-card" onclick="switchTab('design')">
+            <div class="adm-card-icon">🎨</div>
+            <h3>Design</h3>
+            <p>Change theme colors and visual settings.</p>
+          </div>
+          <div class="adm-card" onclick="switchTab('hero')">
+            <div class="adm-card-icon">⚡</div>
+            <h3>Hero Section</h3>
+            <p>Update headline, badge, CTAs and HUD text.</p>
+          </div>
+          <div class="adm-card" onclick="switchTab('about')">
+            <div class="adm-card-icon">👤</div>
+            <h3>About</h3>
+            <p>Edit bio, highlights and skill descriptions.</p>
+          </div>
+          <div class="adm-card" onclick="switchTab('settings')">
+            <div class="adm-card-icon">⚙️</div>
+            <h3>Settings</h3>
+            <p>Manage credentials, backup and restore data.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PROJECTS ── -->
+      <section class="adm-tab" id="tab-projects">
+        <div>
+          <div class="adm-section-title">🎬 Projects</div>
+          <div class="adm-section-sub">Manage your portfolio projects. Changes apply live.</div>
+        </div>
+        <div class="adm-btn-row">
+          <button class="adm-btn primary" id="btn-add-project">＋ Add Project</button>
+        </div>
+        <div class="adm-project-list" id="projects-list">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ── INBOX ── -->
+      <section class="adm-tab" id="tab-inbox">
+        <div>
+          <div class="adm-section-title">💬 Messages</div>
+          <div class="adm-section-sub">Contact form submissions from visitors.</div>
+        </div>
+        <div class="adm-stats-row" style="grid-template-columns:repeat(3,1fr);max-width:460px">
+          <div class="adm-stat">
+            <div class="adm-stat-num" id="inbox-total">0</div>
+            <div class="adm-stat-label">Total</div>
+          </div>
+          <div class="adm-stat">
+            <div class="adm-stat-num" id="inbox-unread">0</div>
+            <div class="adm-stat-label">Unread</div>
+          </div>
+          <div class="adm-stat">
+            <div class="adm-stat-num" id="inbox-read">0</div>
+            <div class="adm-stat-label">Read</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="adm-btn secondary" id="btn-mark-all-read">✓ Mark All Read</button>
+          <button class="adm-btn danger"    id="btn-clear-inbox">🗑 Clear All</button>
+        </div>
+        <div id="inbox-list" style="display:flex;flex-direction:column;gap:10px">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- ── HERO ── -->
+      <section class="adm-tab" id="tab-hero">
+        <div>
+          <div class="adm-section-title">⚡ Hero Section</div>
+          <div class="adm-section-sub">Edit the homepage hero content. Changes apply live on save.</div>
+        </div>
+        <div class="adm-box">
+          <div class="adm-box-title">// Hero Content</div>
+          <div class="adm-form-grid">
+            <div class="adm-field">
+              <label>Badge Text</label>
+              <input type="text" id="hero-badge" placeholder="VIDEO EDITOR & MOTION DESIGNER" />
+            </div>
+            <div class="adm-field">
+              <label>Title / Name</label>
+              <input type="text" id="hero-title" placeholder="shadyi" />
+            </div>
+            <div class="adm-field span-2">
+              <label>Subtitle</label>
+              <textarea id="hero-subtitle" rows="2" placeholder="Crafting high-retention edits..."></textarea>
+            </div>
+            <div class="adm-field">
+              <label>CTA Primary Text</label>
+              <input type="text" id="hero-cta1-text" placeholder="EXPLORE WORK" />
+            </div>
+            <div class="adm-field">
+              <label>CTA Primary Link</label>
+              <input type="text" id="hero-cta1-link" placeholder="#projects" />
+            </div>
+            <div class="adm-field">
+              <label>CTA Secondary Text</label>
+              <input type="text" id="hero-cta2-text" placeholder="START A PROJECT" />
+            </div>
+            <div class="adm-field">
+              <label>CTA Secondary Link</label>
+              <input type="text" id="hero-cta2-link" placeholder="#contact" />
+            </div>
+            <div class="adm-field">
+              <label>HUD Status</label>
+              <input type="text" id="hero-hud-status" />
+            </div>
+            <div class="adm-field">
+              <label>HUD Callout 1</label>
+              <input type="text" id="hero-hud1" />
+            </div>
+            <div class="adm-field">
+              <label>HUD Callout 2</label>
+              <input type="text" id="hero-hud2" />
+            </div>
+            <div class="adm-field">
+              <label>Scroll Hint</label>
+              <input type="text" id="hero-scroll" placeholder="SCROLL TO EXPERIENCE" />
+            </div>
+          </div>
+          <div class="adm-btn-row">
+            <button class="adm-btn primary" id="btn-save-hero">💾 Save Hero</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── ABOUT ── -->
+      <section class="adm-tab" id="tab-about">
+        <div>
+          <div class="adm-section-title">👤 About</div>
+          <div class="adm-section-sub">Edit your bio and highlights.</div>
+        </div>
+        <div class="adm-box">
+          <div class="adm-box-title">// Bio</div>
+          <div class="adm-form-grid single">
+            <div class="adm-field">
+              <label>Section Tag</label>
+              <input type="text" id="about-tag" />
+            </div>
+            <div class="adm-field">
+              <label>Title</label>
+              <input type="text" id="about-title" />
+            </div>
+            <div class="adm-field">
+              <label>Lead Paragraph</label>
+              <textarea id="about-lead" rows="3"></textarea>
+            </div>
+            <div class="adm-field">
+              <label>Body Paragraph</label>
+              <textarea id="about-body" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="adm-btn-row">
+            <button class="adm-btn primary" id="btn-save-about">💾 Save About</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── CONTACT ── -->
+      <section class="adm-tab" id="tab-contact">
+        <div>
+          <div class="adm-section-title">📮 Contact</div>
+          <div class="adm-section-sub">Update contact section text and your email.</div>
+        </div>
+        <div class="adm-box">
+          <div class="adm-box-title">// Contact Settings</div>
+          <div class="adm-form-grid">
+            <div class="adm-field">
+              <label>Section Tag</label>
+              <input type="text" id="contact-tag" />
+            </div>
+            <div class="adm-field">
+              <label>Title</label>
+              <input type="text" id="contact-title" />
+            </div>
+            <div class="adm-field">
+              <label>Owner Email</label>
+              <input type="email" id="contact-email" placeholder="you@example.com" />
+            </div>
+            <div class="adm-field">
+              <label>Button Text</label>
+              <input type="text" id="contact-btn" />
+            </div>
+          </div>
+          <div class="adm-btn-row">
+            <button class="adm-btn primary" id="btn-save-contact">💾 Save Contact</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── DESIGN ── -->
+      <section class="adm-tab" id="tab-design">
+        <div>
+          <div class="adm-section-title">🎨 Design</div>
+          <div class="adm-section-sub">Switch themes and control visual effects.</div>
+        </div>
+        <div class="adm-box">
+          <div class="adm-box-title">// Theme</div>
+          <div class="adm-theme-row" id="theme-swatches">
+            <div class="adm-theme-swatch" data-theme="cyan">
+              <div class="adm-swatch-dot" style="background:#00e5ff;color:#00e5ff"></div>
+              <span class="adm-swatch-label">CYAN</span>
+            </div>
+            <div class="adm-theme-swatch" data-theme="purple">
+              <div class="adm-swatch-dot" style="background:#a855f7;color:#a855f7"></div>
+              <span class="adm-swatch-label">PURPLE</span>
+            </div>
+            <div class="adm-theme-swatch" data-theme="emerald">
+              <div class="adm-swatch-dot" style="background:#10b981;color:#10b981"></div>
+              <span class="adm-swatch-label">EMERALD</span>
+            </div>
+            <div class="adm-theme-swatch" data-theme="gold">
+              <div class="adm-swatch-dot" style="background:#f59e0b;color:#f59e0b"></div>
+              <span class="adm-swatch-label">GOLD</span>
+            </div>
+            <div class="adm-theme-swatch" data-theme="crimson">
+              <div class="adm-swatch-dot" style="background:#ff334b;color:#ff334b"></div>
+              <span class="adm-swatch-label">CRIMSON</span>
+            </div>
+          </div>
+        </div>
+        <div class="adm-box">
+          <div class="adm-box-title">// Visual Effects</div>
+          <div class="adm-toggle-row">
+            <div class="adm-toggle-info">
+              <h4>Particle Effects</h4>
+              <p>Enable floating particle/ember animations</p>
+            </div>
+            <label class="adm-toggle">
+              <input type="checkbox" id="toggle-particles" checked />
+              <span class="adm-toggle-track"></span>
+            </label>
+          </div>
+          <div class="adm-toggle-row">
+            <div class="adm-toggle-info">
+              <h4>Streak Effects</h4>
+              <p>Enable light streak visual overlay</p>
+            </div>
+            <label class="adm-toggle">
+              <input type="checkbox" id="toggle-streaks" checked />
+              <span class="adm-toggle-track"></span>
+            </label>
+          </div>
+          <div class="adm-btn-row" style="margin-top:4px">
+            <button class="adm-btn primary" id="btn-save-design">💾 Save Design</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SETTINGS ── -->
+      <section class="adm-tab" id="tab-settings">
+        <div>
+          <div class="adm-section-title">⚙️ Settings</div>
+          <div class="adm-section-sub">Admin credentials, backup and system tools.</div>
+        </div>
+        <div class="adm-box">
+          <div class="adm-box-title">// Change Credentials</div>
+          <div class="adm-form-grid">
+            <div class="adm-field">
+              <label>New Username</label>
+              <input type="text" id="new-username" placeholder="admin" autocomplete="off" />
+            </div>
+            <div class="adm-field">
+              <label>New Password</label>
+              <input type="password" id="new-password" placeholder="New password" autocomplete="new-password" />
+            </div>
+            <div class="adm-field">
+              <label>Confirm Password</label>
+              <input type="password" id="confirm-password" placeholder="Repeat password" autocomplete="new-password" />
+            </div>
+          </div>
+          <div class="adm-btn-row">
+            <button class="adm-btn primary" id="btn-save-creds">🔑 Update Credentials</button>
+          </div>
+        </div>
+        <div class="adm-box">
+          <div class="adm-box-title">// Site Metadata</div>
+          <div class="adm-form-grid single">
+            <div class="adm-field">
+              <label>Page Title</label>
+              <input type="text" id="meta-title" placeholder="SHADYI Portfolio" />
+            </div>
+            <div class="adm-field">
+              <label>Meta Description</label>
+              <textarea id="meta-desc" rows="2"></textarea>
+            </div>
+          </div>
+          <div class="adm-btn-row">
+            <button class="adm-btn primary" id="btn-save-meta">💾 Save Metadata</button>
+          </div>
+        </div>
+        <div class="adm-box">
+          <div class="adm-box-title">// Backup & Restore</div>
+          <div class="adm-btn-row">
+            <button class="adm-btn secondary" id="btn-export">⬇ Export Backup</button>
+            <label class="adm-btn secondary" style="cursor:pointer">
+              ⬆ Import Backup
+              <input type="file" accept=".json" id="btn-import" style="display:none" />
+            </label>
+            <button class="adm-btn danger" id="btn-reset">↺ Reset to Defaults</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div><!-- /adm-layout -->
+</div><!-- /admin-page -->
+
+<!-- ══════════════════════════════════════
+     PROJECT EDIT MODAL
+     ══════════════════════════════════════ -->
+<div id="project-modal" style="
+  position:fixed;inset:0;z-index:10020;
+  background:rgba(1,4,10,0.88);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:16px;">
+  <div style="
+    width:min(640px,100%);max-height:90vh;
+    background:rgba(14,32,60,0.98);
+    border:1px solid rgba(0,229,255,0.4);
+    border-radius:16px;
+    box-shadow:0 25px 70px rgba(0,0,0,0.85),0 0 50px rgba(0,229,255,0.1);
+    display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08)">
+      <span style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:800;color:#fff" id="proj-modal-title">Edit Project</span>
+      <button onclick="closeProjectModal()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s" onmouseover="this.style.background='#ff334b'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">✕</button>
+    </div>
+    <div style="padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+      <input type="hidden" id="proj-edit-id" />
+      <div class="adm-form-grid">
+        <div class="adm-field">
+          <label>Title</label>
+          <input type="text" id="proj-edit-title" />
+        </div>
+        <div class="adm-field">
+          <label>Category</label>
+          <input type="text" id="proj-edit-category" />
+        </div>
+        <div class="adm-field">
+          <label>Views</label>
+          <input type="text" id="proj-edit-views" placeholder="1.4M Views" />
+        </div>
+        <div class="adm-field">
+          <label>Chip Text</label>
+          <input type="text" id="proj-edit-chip" placeholder="TECH DOCU" />
+        </div>
+        <div class="adm-field">
+          <label>Video URL</label>
+          <input type="url" id="proj-edit-video" placeholder="https://youtube.com/..." />
+        </div>
+        <div class="adm-field">
+          <label>CTA Text</label>
+          <input type="text" id="proj-edit-cta" placeholder="REQUEST THIS STYLE" />
+        </div>
+        <div class="adm-field span-2">
+          <label>Thumbnail Image URL (optional)</label>
+          <input type="url" id="proj-edit-image" placeholder="https://..." />
+        </div>
+        <div class="adm-field span-2">
+          <label>Description</label>
+          <textarea id="proj-edit-desc" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid rgba(255,255,255,0.08);background:rgba(3,8,16,0.6)">
+      <button class="adm-btn secondary" onclick="closeProjectModal()">Cancel</button>
+      <button class="adm-btn primary" onclick="saveProject()">💾 Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- admin.js (the full CMS controller) -->
+<script src="admin.js"></script>
+
+<script>
+  // ═══════════════════════════════════════════════════════
+  //  ADMIN PAGE CONTROLLER
+  //  Bridges the standalone admin.html with admin.js's
+  //  ShadyiAdmin (SiteStore, AdminAuth, SiteRenderer, AdminUI)
+  // ═══════════════════════════════════════════════════════
+
+  /* ── Helper: show toast ── */
+  function showToast(msg, type = 'info') {
+    const container = document.getElementById('adm-toasts');
+    const t = document.createElement('div');
+    t.className = `adm-toast ${type}`;
+    t.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> ${msg}`;
+    container.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(30px)'; setTimeout(() => t.remove(), 300); }, 3000);
+  }
+
+  /* ── Tab switching ── */
+  function switchTab(name) {
+    document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.adm-nav-btn').forEach(b => b.classList.remove('active'));
+    const tab = document.getElementById('tab-' + name);
+    const btn = document.querySelector(`.adm-nav-btn[data-tab="${name}"]`);
+    if (tab) tab.classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (name === 'projects') renderProjectsList();
+    if (name === 'inbox')    renderInbox();
+    if (name === 'hero')     loadHeroForm();
+    if (name === 'about')    loadAboutForm();
+    if (name === 'contact')  loadContactForm();
+    if (name === 'settings') loadSettingsForm();
+    if (name === 'design')   loadDesignForm();
+  }
+
+  document.querySelectorAll('.adm-nav-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  /* ── Auth ── */
+  function checkAuth() {
+    const loading = document.getElementById('auth-loading');
+    const gate    = document.getElementById('auth-gate');
+    const page    = document.getElementById('admin-page');
+
+    // Give admin.js a moment to load, then check
+    setTimeout(() => {
+      const SA = window.ShadyiAdmin;
+      if (SA && SA.AdminAuth.isLoggedIn()) {
+        const creds = SA.AdminAuth.getCredentials();
+        document.getElementById('adm-logged-user').textContent = creds.username;
+        loading.classList.add('hidden');
+        page.style.display = 'block';
+        initPage();
+      } else {
+        loading.classList.add('hidden');
+        gate.classList.remove('hidden');
+      }
+    }, 300);
+  }
+
+  /* ── Login form ── */
+  document.getElementById('gate-submit').addEventListener('click', () => {
+    const user = document.getElementById('gate-user').value.trim();
+    const pass = document.getElementById('gate-pass').value;
+    const msg  = document.getElementById('gate-msg');
+    const SA   = window.ShadyiAdmin;
+
+    if (!user || !pass) { msg.textContent = 'Please enter credentials.'; return; }
+
+    const result = SA.AdminAuth.login(user, pass);
+    if (result.success) {
+      msg.className = 'auth-msg success';
+      msg.textContent = '✓ Access granted. Opening panel...';
+      setTimeout(() => {
+        document.getElementById('auth-gate').classList.add('hidden');
+        document.getElementById('adm-logged-user').textContent = user;
+        document.getElementById('admin-page').style.display = 'block';
+        initPage();
+      }, 500);
+    } else {
+      msg.className = 'auth-msg';
+      msg.textContent = result.message || 'Invalid credentials.';
+    }
+  });
+
+  document.getElementById('gate-pass').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('gate-submit').click();
+  });
+
+  /* ── Logout ── */
+  document.getElementById('adm-logout').addEventListener('click', () => {
+    window.ShadyiAdmin.AdminAuth.logout();
+    document.getElementById('admin-page').style.display = 'none';
+    document.getElementById('auth-gate').classList.remove('hidden');
+    document.getElementById('gate-msg').textContent = '';
+    document.getElementById('gate-pass').value = '';
+    showToast('Logged out successfully.', 'info');
+  });
+
+  /* ── Init page ── */
+  function initPage() {
+    updateStats();
+    updateInboxBadge();
+    loadDesignForm();
+  }
+
+  /* ── Stats ── */
+  function updateStats() {
+    const SA = window.ShadyiAdmin;
+    const data  = SA.SiteStore.getData();
+    const inbox = SA.SiteStore.getInbox();
+    const unread = inbox.filter(m => !m.read).length;
+
+    document.getElementById('stat-projects').textContent = (data.projects || []).length;
+    document.getElementById('stat-messages').textContent = inbox.length;
+    document.getElementById('stat-unread').textContent   = unread;
+    document.getElementById('inbox-total').textContent   = inbox.length;
+    document.getElementById('inbox-unread').textContent  = unread;
+    document.getElementById('inbox-read').textContent    = inbox.length - unread;
+  }
+
+  /* ── Inbox badge ── */
+  function updateInboxBadge() {
+    const SA = window.ShadyiAdmin;
+    const unread = SA.SiteStore.getInbox().filter(m => !m.read).length;
+    const badge = document.getElementById('inbox-count');
+    if (unread > 0) { badge.textContent = unread; badge.style.display = 'inline-flex'; }
+    else            { badge.style.display = 'none'; }
+  }
+
+  /* ── Projects List ── */
+  function renderProjectsList() {
+    const SA = window.ShadyiAdmin;
+    const projects = SA.SiteStore.getData().projects || [];
+    const list = document.getElementById('projects-list');
+    list.innerHTML = '';
+
+    if (!projects.length) {
+      list.innerHTML = '<p style="color:rgba(160,195,225,0.4);font-size:0.85rem;padding:20px 0">No projects yet. Click "Add Project" to get started.</p>';
+      return;
+    }
+
+    projects.forEach((p, i) => {
+      const item = document.createElement('div');
+      item.className = 'adm-project-item';
+      item.innerHTML = `
+        <div class="adm-project-info">
+          <div class="adm-project-thumb">
+            ${p.customImage ? `<img src="${p.customImage}" alt="${p.title}" />` : (p.chipText || 'VID')}
+          </div>
+          <div>
+            <div class="adm-project-title">${p.title}</div>
+            <div style="margin-top:4px"><span class="adm-project-cat">${p.category}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:rgba(160,195,225,0.4);margin-left:8px">${p.views || ''}</span>
+            </div>
+          </div>
+        </div>
+        <div class="adm-project-actions">
+          <button class="adm-btn secondary" onclick="openProjectModal(${i})" style="padding:6px 12px;font-size:0.7rem">✏ Edit</button>
+          <button class="adm-btn danger"    onclick="deleteProject(${i})"    style="padding:6px 12px;font-size:0.7rem">🗑</button>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  /* ── Project Modal ── */
+  let editingProjectIndex = null;
+
+  function openProjectModal(idx) {
+    const SA = window.ShadyiAdmin;
+    const modal = document.getElementById('project-modal');
+    editingProjectIndex = idx;
+
+    if (idx === null || idx === undefined) {
+      // New project
+      document.getElementById('proj-modal-title').textContent = 'Add Project';
+      ['proj-edit-id','proj-edit-title','proj-edit-category','proj-edit-views',
+       'proj-edit-chip','proj-edit-video','proj-edit-cta','proj-edit-image','proj-edit-desc']
+        .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    } else {
+      const p = SA.SiteStore.getData().projects[idx];
+      document.getElementById('proj-modal-title').textContent = 'Edit Project';
+      document.getElementById('proj-edit-id').value       = p.id || '';
+      document.getElementById('proj-edit-title').value    = p.title || '';
+      document.getElementById('proj-edit-category').value = p.category || '';
+      document.getElementById('proj-edit-views').value    = p.views || '';
+      document.getElementById('proj-edit-chip').value     = p.chipText || '';
+      document.getElementById('proj-edit-video').value    = p.videoUrl || '';
+      document.getElementById('proj-edit-cta').value      = p.ctaText || '';
+      document.getElementById('proj-edit-image').value    = p.customImage || '';
+      document.getElementById('proj-edit-desc').value     = p.description || '';
+    }
+    modal.style.display = 'flex';
+  }
+
+  document.getElementById('btn-add-project').addEventListener('click', () => openProjectModal(null));
+
+  function closeProjectModal() {
+    document.getElementById('project-modal').style.display = 'none';
+    editingProjectIndex = null;
+  }
+
+  function saveProject() {
+    const SA   = window.ShadyiAdmin;
+    const data = SA.SiteStore.getData();
+    const projects = data.projects || [];
+
+    const proj = {
+      id:          document.getElementById('proj-edit-id').value    || 'proj_' + Date.now(),
+      title:       document.getElementById('proj-edit-title').value,
+      category:    document.getElementById('proj-edit-category').value,
+      views:       document.getElementById('proj-edit-views').value,
+      chipText:    document.getElementById('proj-edit-chip').value,
+      videoUrl:    document.getElementById('proj-edit-video').value,
+      ctaText:     document.getElementById('proj-edit-cta').value,
+      customImage: document.getElementById('proj-edit-image').value,
+      description: document.getElementById('proj-edit-desc').value,
+      thumbClass:  'thumb-cloud',
+      ctaLink:     '#contact',
+      overlayCat:  document.getElementById('proj-edit-category').value,
+      overlayName: document.getElementById('proj-edit-title').value,
+      headline:    document.getElementById('proj-edit-title').value,
+      sub:         document.getElementById('proj-edit-views').value,
+      meta:        ''
+    };
+
+    if (editingProjectIndex !== null) {
+      projects[editingProjectIndex] = { ...projects[editingProjectIndex], ...proj };
+    } else {
+      projects.push(proj);
+    }
+    data.projects = projects;
+    SA.SiteStore.saveData(data);
+    closeProjectModal();
+    renderProjectsList();
+    updateStats();
+    showToast('Project saved successfully!', 'success');
+  }
+
+  function deleteProject(idx) {
+    if (!confirm('Delete this project?')) return;
+    const SA   = window.ShadyiAdmin;
+    const data = SA.SiteStore.getData();
+    data.projects.splice(idx, 1);
+    SA.SiteStore.saveData(data);
+    renderProjectsList();
+    updateStats();
+    showToast('Project deleted.', 'info');
+  }
+
+  /* ── Inbox ── */
+  function renderInbox() {
+    const SA = window.ShadyiAdmin;
+    const inbox = SA.SiteStore.getInbox();
+    const list  = document.getElementById('inbox-list');
+    list.innerHTML = '';
+    updateStats();
+    updateInboxBadge();
+
+    if (!inbox.length) {
+      list.innerHTML = '<p style="color:rgba(160,195,225,0.4);font-size:0.85rem;padding:20px 0">No messages yet.</p>';
+      return;
+    }
+
+    inbox.forEach((m, i) => {
+      const item = document.createElement('div');
+      item.className = `adm-msg-item ${m.read ? '' : 'unread'}`;
+      item.innerHTML = `
+        <div class="adm-msg-row">
+          <span class="adm-msg-name">${m.name}${!m.read ? '<span class="adm-badge-new">NEW</span>' : ''}</span>
+          <span class="adm-msg-date">${m.date}</span>
+        </div>
+        <div style="font-size:0.75rem;color:rgba(0,229,255,0.6);margin-bottom:4px">${m.email}</div>
+        <div class="adm-msg-preview">${m.message}</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          ${!m.read ? `<button class="adm-btn secondary" onclick="markRead(${i})" style="padding:5px 10px;font-size:0.68rem">✓ Mark Read</button>` : ''}
+          <button class="adm-btn danger" onclick="deleteMsg(${i})" style="padding:5px 10px;font-size:0.68rem">🗑 Delete</button>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function markRead(i) {
+    const SA = window.ShadyiAdmin;
+    const inbox = SA.SiteStore.getInbox();
+    if (inbox[i]) { inbox[i].read = true; SA.SiteStore.saveInbox(inbox); renderInbox(); }
+  }
+
+  function deleteMsg(i) {
+    const SA = window.ShadyiAdmin;
+    const inbox = SA.SiteStore.getInbox();
+    inbox.splice(i, 1);
+    SA.SiteStore.saveInbox(inbox);
+    renderInbox();
+    showToast('Message deleted.', 'info');
+  }
+
+  document.getElementById('btn-mark-all-read').addEventListener('click', () => {
+    const SA = window.ShadyiAdmin;
+    const inbox = SA.SiteStore.getInbox().map(m => ({ ...m, read: true }));
+    SA.SiteStore.saveInbox(inbox);
+    renderInbox();
+    showToast('All messages marked as read.', 'success');
+  });
+
+  document.getElementById('btn-clear-inbox').addEventListener('click', () => {
+    if (!confirm('Clear all messages?')) return;
+    const SA = window.ShadyiAdmin;
+    SA.SiteStore.saveInbox([]);
+    renderInbox();
+    showToast('Inbox cleared.', 'info');
+  });
+
+  /* ── Hero Form ── */
+  function loadHeroForm() {
+    const hero = window.ShadyiAdmin.SiteStore.getData().hero || {};
+    document.getElementById('hero-badge').value      = hero.badgeText    || '';
+    document.getElementById('hero-title').value      = hero.title        || '';
+    document.getElementById('hero-subtitle').value   = hero.subtitle     || '';
+    document.getElementById('hero-cta1-text').value  = hero.ctaPrimaryText || '';
+    document.getElementById('hero-cta1-link').value  = hero.ctaPrimaryLink || '';
+    document.getElementById('hero-cta2-text').value  = hero.ctaSecondaryText || '';
+    document.getElementById('hero-cta2-link').value  = hero.ctaSecondaryLink || '';
+    document.getElementById('hero-hud-status').value = hero.hudStatus    || '';
+    document.getElementById('hero-hud1').value        = hero.hudCallout1 || '';
+    document.getElementById('hero-hud2').value        = hero.hudCallout2 || '';
+    document.getElementById('hero-scroll').value      = hero.scrollHint  || '';
+  }
+
+  document.getElementById('btn-save-hero').addEventListener('click', () => {
+    const SA   = window.ShadyiAdmin;
+    const data = SA.SiteStore.getData();
+    data.hero = {
+      ...data.hero,
+      badgeText:         document.getElementById('hero-badge').value,
+      title:             document.getElementById('hero-title').value,
+      subtitle:          document.getElementById('hero-subtitle').value,
+      ctaPrimaryText:    document.getElementById('hero-cta1-text').value,
+      ctaPrimaryLink:    document.getElementById('hero-cta1-link').value,
+      ctaSecondaryText:  document.getElementById('hero-cta2-text').value,
+      ctaSecondaryLink:  document.getElementById('hero-cta2-link').value,
+      hudStatus:         document.getElementById('hero-hud-status').value,
+      hudCallout1:       document.getElementById('hero-hud1').value,
+      hudCallout2:       document.getElementById('hero-hud2').value,
+      scrollHint:        document.getElementById('hero-scroll').value
+    };
+    SA.SiteStore.saveData(data);
+    showToast('Hero section saved!', 'success');
+  });
+
+  /* ── About Form ── */
+  function loadAboutForm() {
+    const about = window.ShadyiAdmin.SiteStore.getData().about || {};
+    document.getElementById('about-tag').value   = about.sectionTag || '';
+    document.getElementById('about-title').value = about.title      || '';
+    document.getElementById('about-lead').value  = about.lead       || '';
+    document.getElementById('about-body').value  = about.body       || '';
+  }
+
+  document.getElementById('btn-save-about').addEventListener('click', () => {
+    const SA   = window.ShadyiAdmin;
+    const data = SA.SiteStore.getData();
+    data.about = {
+      ...data.about,
+      sectionTag: document.getElementById('about-tag').value,
+      title:      document.getElementById('about-title').value,
+      lead:       document.getElementById('about-lead').value,
+      body:       document.getElementById('about-body').value
+    };
+    SA.SiteStore.saveData(data);
+    showToast('About section saved!', 'success');
+  });
+
+  /* ── Contact Form ── */
+  function loadContactForm() {
+    const contact = window.ShadyiAdmin.SiteStore.getData().contact || {};
+    document.getElementById('contact-tag').value   = contact.sectionTag  || '';
+    document.getElementById('contact-title').value = contact.title       || '';
+    document.getElementById('contact-email').value = contact.ownerEmail  || '';
+    document.getElementById('contact-btn').value   = contact.buttonText  || '';
+  }
+
+  document.getElementById('btn-save-contact').addEventListener('click', () => {
+    const SA   = window.ShadyiAdmin;
+    const data = SA.SiteStore.getData();
+    data.contact = {
+      ...data.contact,
+      sectionTag: document.getElementById('contact-tag').value,
+      title:      document.getElementById('contact-title').value,
+      ownerEmail: document.getElementById('contact-email').value,
+      buttonText: document.getElementById('contact-btn').value
+    };
+    SA.SiteStore.saveData(data);
+    showToast('Contact settings saved!', 'success');
+  });
+
+  /* ── Design Form ── */
+  function loadDesignForm() {
+    const design = window.ShadyiAdmin.SiteStore.getData().design || {};
+    const theme  = design.theme || 'cyan';
+    document.querySelectorAll('.adm-theme-swatch').forEach(s => {
+      s.classList.toggle('active', s.dataset.theme === theme);
+    });
+    const pEl = document.getElementById('toggle-particles');
+    const sEl = document.getElementById('toggle-streaks');
+    if (pEl) pEl.checked = design.particlesEnabled !== false;
+    if (sEl) sEl.checked = design.streaksEnabled   !== false;
+  }
+
+  document.querySelectorAll('.adm-theme-swatch').forEach(swatch => {
+    swatch.addEventListener('click', () => {
+      document.querySelectorAll('.adm-theme-swatch').forEach(s => s.classList.remove('active'));
+      swatch.classList.add('active');
+    });
+  });
+
+  document.getElementById('btn-save-design').addEventListener('click', () => {
+    const SA   = window.ShadyiAdmin;
+    const data = SA.SiteStore.getData();
+    const activeSwatch = document.querySelector('.adm-theme-swatch.active');
+    data.design = {
+      ...data.design,
+      theme:            activeSwatch ? activeSwatch.dataset.theme : 'cyan',
+      particlesEnabled: document.getElementById('toggle-particles').checked,
+      streaksEnabled:   document.getElementById('toggle-streaks').checked
+    };
+    SA.SiteStore.saveData(data);
+    showToast('Design settings saved!', 'success');
+  });
+
+  /* ── Settings Form ── */
+  function loadSettingsForm() {
+    const SA   = window.ShadyiAdmin;
+    const data = SA.SiteStore.getData();
+    const creds = SA.AdminAuth.getCredentials();
+    document.getElementById('new-username').value = creds.username || '';
+    document.getElementById('meta-title').value   = (data.meta && data.meta.title) || '';
+    document.getElementById('meta-desc').value    = (data.meta && data.meta.description) || '';
+  }
+
+  document.getElementById('btn-save-creds').addEventListener('click', () => {
+    const SA   = window.ShadyiAdmin;
+    const user = document.getElementById('new-username').value.trim();
+    const pass = document.getElementById('new-password').value;
+    const conf = document.getElementById('confirm-password').value;
+    if (!user)       { showToast('Username cannot be empty.', 'error'); return; }
+    if (pass && pass !== conf) { showToast('Passwords do not match.', 'error'); return; }
+    const finalPass = pass || SA.AdminAuth.getCredentials().password;
+    SA.AdminAuth.saveCredentials(user, finalPass);
+    document.getElementById('adm-logged-user').textContent = user;
+    document.getElementById('new-password').value  = '';
+    document.getElementById('confirm-password').value = '';
+    showToast('Credentials updated!', 'success');
+  });
+
+  document.getElementById('btn-save-meta').addEventListener('click', () => {
+    const SA   = window.ShadyiAdmin;
+    const data = SA.SiteStore.getData();
+    data.meta = {
+      title:       document.getElementById('meta-title').value,
+      description: document.getElementById('meta-desc').value
+    };
+    SA.SiteStore.saveData(data);
+    showToast('Metadata saved!', 'success');
+  });
+
+  document.getElementById('btn-export').addEventListener('click', () => {
+    window.ShadyiAdmin.AdminUI.exportBackup
+      ? window.ShadyiAdmin.AdminUI.exportBackup()
+      : (() => {
+          const data = window.ShadyiAdmin.SiteStore.getData();
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href = url; a.download = `shadyi-backup-${new Date().toISOString().slice(0,10)}.json`;
+          a.click(); URL.revokeObjectURL(url);
+          showToast('Backup exported!', 'success');
+        })();
+  });
+
+  document.getElementById('btn-import').addEventListener('change', (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        window.ShadyiAdmin.SiteStore.saveData(parsed);
+        loadSettingsForm(); loadHeroForm(); loadAboutForm(); loadContactForm(); loadDesignForm();
+        showToast('Backup restored!', 'success');
+      } catch { showToast('Invalid backup file.', 'error'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    if (!confirm('Reset all site data to defaults? This cannot be undone.')) return;
+    window.ShadyiAdmin.SiteStore.resetToDefaults();
+    loadSettingsForm(); loadHeroForm(); loadAboutForm(); loadContactForm(); loadDesignForm();
+    updateStats(); updateInboxBadge();
+    showToast('Site data reset to defaults.', 'info');
+  });
+
+  /* ── Boot ── */
+  checkAuth();
+</script>
+
+</body>
+</html>

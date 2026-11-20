@@ -1,0 +1,536 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>SHADYI Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>:root{color-scheme:dark}</style>
+<script>document.documentElement.setAttribute("data-theme","cyan");</script>
+
+  <!-- 3D Interactive Ember & Bokeh Background Canvas -->
+  <canvas id="ember-canvas"></canvas>
+
+  <!-- Ambient Glow Overlays -->
+  <div class="ambient-glow ambient-glow-1"></div>
+  <div class="ambient-glow ambient-glow-2"></div>
+  <div class="vignette-overlay"></div>
+
+  <!-- Fixed Navigation Bar -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo">shadyi<span class="red-dot">.</span></a>
+      <nav class="nav-links">
+        <a href="#projects" class="nav-link">PROJECTS</a>
+        <a href="#about" class="nav-link">ABOUT</a>
+        <a href="#skills" class="nav-link">SKILLS</a>
+        <a href="#contact" class="nav-link">CONTACT</a>
+      </nav>
+      <div class="nav-actions">
+        <button type="button" class="login-open-btn" id="login-open-btn" aria-haspopup="dialog">LOGIN</button>
+        <a href="#contact" class="btn-lets-talk">LET'S TALK</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section id="hero" class="hero-section">
+      <div class="hero-sticky-wrap">
+        <div class="hero-card" id="hero-card">
+
+
+          <div class="hero-grid">
+            <!-- Left Content -->
+            <div class="hero-content">
+              <div class="hero-badge">
+                <span class="badge-dot"></span>
+                <span>VIDEO EDITOR &amp; MOTION DESIGNER</span>
+              </div>
+              <h1 class="hero-title brand-lower">shadyi<span class="red-dot">.</span></h1>
+              <div class="hero-accent-line"></div>
+              <p class="hero-subtitle">
+                Crafting high-retention edits, kinetic motion graphics, and cinematic visual stories that command attention and scale brands.
+              </p>
+              <div class="hero-cta-group">
+                <a href="#projects" class="btn-primary-glow">
+                  <span>EXPLORE WORK</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </a>
+                <a href="#contact" class="btn-secondary-glass">START A PROJECT</a>
+              </div>
+            </div>
+
+            <!-- Right Cyber Visor Portrait with 86-Frame Scroll Animation -->
+            <div class="hero-visual" id="hero-visual">
+              <div class="visor-portrait-wrapper" id="visor-portrait-wrapper" title="Scroll down or scrub horizontally to activate cyber visor">
+                <!-- Background Halo -->
+                <div class="visor-halo" id="visor-halo"></div>
+                <div class="visor-rings">
+                  <div class="visor-ring ring-1"></div>
+                  <div class="visor-ring ring-2"></div>
+                </div>
+
+                <!-- High-Impact Cyber Visor Portrait Canvas with Scroll Frame Sequence -->
+                <div class="cyber-portrait-art">
+                  <canvas id="hero-portrait-canvas" width="1080" height="1080"></canvas>
+                  <!-- HUD Status Badge -->
+                  <div class="portrait-hud-badge">
+                    <div class="badge-left">
+                      <span class="badge-pulse"></span>
+                      <span id="hero-frame-status">NEURAL OPTICS // SCROLL TO IGNITE</span>
+                    </div>
+                    <span class="badge-frame-counter" id="hero-frame-counter">01/86</span>
+                  </div>
+                </div>
+
+                <!-- Floating HUD Callouts -->
+                <div class="hud-callout hud-callout-1">
+                  <span class="hud-line"></span>
+                  <span class="hud-label">RETENTION // 99.4%</span>
+                </div>
+                <div class="hud-callout hud-callout-2">
+                  <span class="hud-label">4K 60FPS PIPELINE</span>
+                  <span class="hud-line"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scroll indicator -->
+          <div class="hero-scroll-hint">
+            <span>SCROLL TO EXPERIENCE</span>
+            <div class="scroll-mouse">
+              <div class="scroll-wheel"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- PROJECTS SECTION WITH 3D SCROLL TUNNEL FLY-IN -->
+    <section id="projects" class="projects-scroll-section">
+      <div class="projects-sticky-stage">
+        <div class="container projects-stage-inner">
+          <div class="section-header projects-header">
+            <span class="section-tag">// SELECTED WORK</span>
+            <h2 class="section-title">PROJECTS<span class="red-dot">.</span></h2>
+          </div>
+
+          <!-- 3D Tunnel / Grid Stage -->
+          <div class="projects-3d-viewport" id="projects-3d-viewport">
+            <div class="tunnel-core-glow" id="tunnel-core-glow"></div>
+
+            <div class="projects-grid" id="projects-grid">
+              <!-- Card 1: Cloud Gaming Documentary -->
+              <article class="project-card" data-index="0" data-title="Is Cloud Gaming the Future?" data-category="DOCUMENTARY & TECH EDIT" data-views="1.4M Views">
+                <div class="project-thumb thumb-cloud">
+                  <div class="thumb-art">
+                    <span class="thumb-chip">TECH DOCU</span>
+                    <div class="thumb-headline">Is Cloud Gaming<br/>the Future?</div>
+                    <div class="thumb-sub">LATENCY // SERVERS // 2026</div>
+                    <div class="thumb-play-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    </div>
+                  </div>
+                  <div class="project-overlay">
+                    <span class="project-cat">DOCUMENTARY EDIT</span>
+                    <h3 class="project-name">Is Cloud Gaming the Future?</h3>
+                    <p class="project-meta">3D Motion Tracking • Sound Design • Retention Pacing</p>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Card 2: UI & Motion Systems -->
+              <article class="project-card" data-index="1" data-title="Kinetic UI & Motion Reel" data-category="MOTION GRAPHICS" data-views="850K Views">
+                <div class="project-thumb thumb-cyan">
+                  <div class="thumb-art">
+                    <span class="thumb-chip">MOTION UI</span>
+                    <div class="thumb-ui-mock">
+                      <div class="ui-bar"></div>
+                      <div class="ui-wave"></div>
+                      <div class="ui-stat">+340%</div>
+                    </div>
+                    <div class="thumb-play-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    </div>
+                  </div>
+                  <div class="project-overlay">
+                    <span class="project-cat">MOTION DESIGN</span>
+                    <h3 class="project-name">Kinetic UI &amp; SaaS Motion Reel</h3>
+                    <p class="project-meta">After Effects • Custom Expressions • 60FPS</p>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Card 3: 3D VFX Neon Reveal -->
+              <article class="project-card" data-index="2" data-title="Cybernetic 3D Brand Ident" data-category="3D & VFX COMPOSITING" data-views="920K Views">
+                <div class="project-thumb thumb-neon-cube">
+                  <div class="thumb-art">
+                    <span class="thumb-chip">3D VFX</span>
+                    <div class="neon-orb-graphic"></div>
+                    <div class="thumb-play-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    </div>
+                  </div>
+                  <div class="project-overlay">
+                    <span class="project-cat">3D &amp; VFX</span>
+                    <h3 class="project-name">Cybernetic 3D Brand Ident</h3>
+                    <p class="project-meta">Blender • After Effects • Optical Glow</p>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Card 4: Turn Your Designs Into Motion -->
+              <article class="project-card" data-index="3" data-title="Turn Your Designs Into Motion" data-category="SAAS LAUNCH PROMO" data-views="1.1M Views">
+                <div class="project-thumb thumb-purple">
+                  <div class="thumb-art">
+                    <span class="thumb-chip">SAAS LAUNCH</span>
+                    <div class="thumb-headline-big">turn your<br/><span>designs</span></div>
+                    <div class="thumb-sub">INTO HIGH-CONVERTING MOTION</div>
+                    <div class="thumb-play-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    </div>
+                  </div>
+                  <div class="project-overlay">
+                    <span class="project-cat">COMMERCIAL PROMO</span>
+                    <h3 class="project-name">Turn Your Designs Into Motion</h3>
+                    <p class="project-meta">Kinetic Typography • Smooth Morphs • SFX</p>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Card 5: Think Smarter -->
+              <article class="project-card" data-index="4" data-title="Think Smarter: Viral Essay" data-category="HIGH-RETENTION YOUTUBE" data-views="2.3M Views">
+                <div class="project-thumb thumb-yellow">
+                  <div class="thumb-art">
+                    <span class="thumb-chip">VIRAL ESSAY</span>
+                    <div class="thumb-headline-yellow">Think Smarter</div>
+                    <div class="thumb-sub-dark">VISUAL STORYTELLING BREAKDOWN</div>
+                    <div class="thumb-play-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    </div>
+                  </div>
+                  <div class="project-overlay">
+                    <span class="project-cat">YOUTUBE LONG-FORM</span>
+                    <h3 class="project-name">Think Smarter — Visual Essay</h3>
+                    <p class="project-meta">78% Avg Percentage Viewed • Custom Maps &amp; Charts</p>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Card 6: FinTech App Reel -->
+              <article class="project-card" data-index="5" data-title="Next-Gen FinTech App Launch" data-category="SHORT-FORM & REELS" data-views="680K Views">
+                <div class="project-thumb thumb-green">
+                  <div class="thumb-art">
+                    <span class="thumb-chip">FINTECH REEL</span>
+                    <div class="fintech-card-mock">
+                      <div class="fintech-pill">$48,920.00</div>
+                      <div class="fintech-tag">INSTANT SCALE</div>
+                    </div>
+                    <div class="thumb-play-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    </div>
+                  </div>
+                  <div class="project-overlay">
+                    <span class="project-cat">SHORT-FORM VIRAL</span>
+                    <h3 class="project-name">Next-Gen FinTech App Launch</h3>
+                    <p class="project-meta">3D Phone Rig • Speed Ramps • Sub-Bass Mixing</p>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="projects-scroll-progress">
+            <div class="projects-scroll-bar" id="projects-scroll-bar"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="about-section">
+      <div class="container">
+        <div class="about-wrap reveal-up">
+          <div class="section-header text-center">
+            <span class="section-tag">// THE CREATOR BEHIND THE CUTS</span>
+            <h2 class="section-title">
+              ABOUT <span class="text-red-glow brand-lower">shadyi<span class="red-dot">.</span></span>
+            </h2>
+          </div>
+
+          <div class="about-bio-card">
+            <p class="about-lead">
+              I don't just cut clips together — I engineer attention. With years of experience in high-retention video editing and bespoke motion design, I help creators, agencies, and tech brands turn raw ideas into unforgettable visual experiences.
+            </p>
+            <p class="about-body">
+              Every frame is crafted with intentional pacing, immersive sound design, and custom motion graphics in After Effects &amp; Premiere Pro to keep viewers locked in from the first second to the final call-to-action.
+            </p>
+
+            <div class="about-highlights">
+              <div class="highlight-item">
+                <span class="highlight-dot"></span>
+                <div>
+                  <strong>High-Retention Pacing</strong>
+                  <span>Story-first structure built for maximum watch time</span>
+                </div>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-dot"></span>
+                <div>
+                  <strong>Custom Motion Graphics</strong>
+                  <span>Bespoke 2D/3D visuals tailored to your brand identity</span>
+                </div>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-dot"></span>
+                <div>
+                  <strong>Cinematic Sound Design</strong>
+                  <span>Layered risers, hits, and spatial audio mastering</span>
+                </div>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-dot"></span>
+                <div>
+                  <strong>Fast, Reliable Pipeline</strong>
+                  <span>Clear communication and 98% on-time delivery</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNICAL SKILLS SECTION -->
+    <section id="skills" class="skills-section">
+      <div class="container">
+        <div class="section-header text-center reveal-up">
+          <span class="section-tag">// CORE COMPETENCIES</span>
+          <h2 class="section-title">TECHNICAL SKILLS<span class="red-dot">.</span></h2>
+        </div>
+
+        <div class="skills-grid">
+          <div class="skill-card reveal-up">
+            <div class="skill-top">
+              <div>
+                <h3 class="skill-title">Visual Storytelling</h3>
+                <p class="skill-sub">Narrative structure, hook engineering &amp; audience retention</p>
+              </div>
+              <span class="skill-badge">EXPERT</span>
+            </div>
+            <div class="skill-progress-track">
+              <div class="skill-progress-fill" data-width="98%"></div>
+            </div>
+          </div>
+
+          <div class="skill-card reveal-up" style="transition-delay: 0.05s">
+            <div class="skill-top">
+              <div>
+                <h3 class="skill-title">Motion Graphics</h3>
+                <p class="skill-sub">2D/3D animation, kinetic typography &amp; graph editor mastery</p>
+              </div>
+              <span class="skill-badge">EXPERT</span>
+            </div>
+            <div class="skill-progress-track">
+              <div class="skill-progress-fill" data-width="96%"></div>
+            </div>
+          </div>
+
+          <div class="skill-card reveal-up" style="transition-delay: 0.1s">
+            <div class="skill-top">
+              <div>
+                <h3 class="skill-title">Sound Design &amp; Mixing</h3>
+                <p class="skill-sub">Multi-layered SFX, sub-bass drops, foley &amp; crisp vocal EQ</p>
+              </div>
+              <span class="skill-badge">EXPERT</span>
+            </div>
+            <div class="skill-progress-track">
+              <div class="skill-progress-fill" data-width="95%"></div>
+            </div>
+          </div>
+
+          <div class="skill-card reveal-up" style="transition-delay: 0.15s">
+            <div class="skill-top">
+              <div>
+                <h3 class="skill-title">Color Grading &amp; Look Dev</h3>
+                <p class="skill-sub">Cinematic LUT creation, skin-tone balancing &amp; film emulation</p>
+              </div>
+              <span class="skill-badge badge-advanced">ADVANCED</span>
+            </div>
+            <div class="skill-progress-track">
+              <div class="skill-progress-fill" data-width="90%"></div>
+            </div>
+          </div>
+
+          <div class="skill-card reveal-up" style="transition-delay: 0.2s">
+            <div class="skill-top">
+              <div>
+                <h3 class="skill-title">Pacing &amp; Retention Editing</h3>
+                <p class="skill-sub">Rhythm-based cuts, J/L cuts, speed ramping &amp; pattern interrupts</p>
+              </div>
+              <span class="skill-badge">EXPERT</span>
+            </div>
+            <div class="skill-progress-track">
+              <div class="skill-progress-fill" data-width="99%"></div>
+            </div>
+          </div>
+
+          <div class="skill-card reveal-up" style="transition-delay: 0.25s">
+            <div class="skill-top">
+              <div>
+                <h3 class="skill-title">3D Camera &amp; VFX Compositing</h3>
+                <p class="skill-sub">3D camera tracking, rotoscoping, glow/optical flares &amp; green screen</p>
+              </div>
+              <span class="skill-badge badge-advanced">ADVANCED</span>
+            </div>
+            <div class="skill-progress-track">
+              <div class="skill-progress-fill" data-width="92%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MY ARSENAL -->
+        <div class="arsenal-block reveal-up">
+          <h3 class="arsenal-title">MY ARSENAL<span class="red-dot">.</span></h3>
+          <div class="arsenal-grid">
+            <div class="arsenal-card" title="Adobe After Effects">
+              <div class="arsenal-icon icon-ae">Ae</div>
+              <span class="arsenal-name">After Effects</span>
+            </div>
+            <div class="arsenal-card" title="Adobe Premiere Pro">
+              <div class="arsenal-icon icon-pr">Pr</div>
+              <span class="arsenal-name">Premiere Pro</span>
+            </div>
+            <div class="arsenal-card" title="DaVinci Resolve">
+              <div class="arsenal-icon icon-dv">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="7" r="4" stroke="#ff4d4d"/>
+                  <circle cx="7.5" cy="15.5" r="4" stroke="#38bdf8"/>
+                  <circle cx="16.5" cy="15.5" r="4" stroke="#4ade80"/>
+                </svg>
+              </div>
+              <span class="arsenal-name">DaVinci</span>
+            </div>
+            <div class="arsenal-card" title="CapCut">
+              <div class="arsenal-icon icon-cc">Cc</div>
+              <span class="arsenal-name">CapCut</span>
+            </div>
+            <div class="arsenal-card" title="Adobe Lightroom">
+              <div class="arsenal-icon icon-lr">Lr</div>
+              <span class="arsenal-name">Lightroom</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="contact-section">
+      <div class="container">
+        <div class="section-header text-center reveal-up">
+          <span class="section-tag">// GET IN TOUCH</span>
+          <h2 class="section-title">CONTACT<span class="red-dot">.</span></h2>
+        </div>
+
+        <div class="contact-outer-shell reveal-up">
+
+          <form class="contact-form-card" id="contact-form">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="name-input">YOUR NAME</label>
+                <input type="text" id="name-input" placeholder="Your Name" required />
+              </div>
+              <div class="form-group">
+                <label for="email-input">YOUR EMAIL</label>
+                <input type="email" id="email-input" placeholder="your.email@example.com" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="message-input">MESSAGE &amp; PROJECT SCOPE</label>
+              <textarea id="message-input" rows="4" placeholder="Let's build something cinematic together..." required></textarea>
+            </div>
+
+            <div class="form-submit-wrap">
+              <button type="submit" class="btn-send-message" id="submit-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                <span>Send Message</span>
+              </button>
+            </div>
+            <div id="form-toast" class="form-toast" aria-live="polite"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-socials">
+        <a href="https://instagram.com" target="_blank" rel="noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.3" cy="6.7" r="0.6" fill="currentColor"></circle></svg>INSTAGRAM</a>
+        <a href="https://youtube.com" target="_blank" rel="noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4"></rect><polygon points="10 9 16 12 10 15 10 9" fill="currentColor"></polygon></svg>YOUTUBE</a>
+        <a href="https://github.com" target="_blank" rel="noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>GITHUB</a>
+      </div>
+      <p class="footer-copy">© 2026 shadyi — Video Editor &amp; Motion Designer. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Project Video Preview Modal -->
+  <div class="project-modal" id="project-modal" aria-hidden="true">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-dialog">
+      <button class="modal-close" id="modal-close" aria-label="Close modal">✕</button>
+      <div class="modal-header">
+        <span class="modal-cat" id="modal-cat">DOCUMENTARY EDIT</span>
+        <h3 class="modal-title" id="modal-title">Project Title</h3>
+      </div>
+      <div class="modal-video-stage" id="modal-video-stage">
+        <canvas id="modal-showreel-canvas" width="800" height="450"></canvas>
+        <div class="modal-video-hud">
+          <span class="rec-dot">● PREVIEW REEL</span>
+          <span id="modal-views">1.4M Views</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <p>Want a similar high-retention edit or motion graphics package for your channel or brand?</p>
+        <a href="#contact" class="btn-primary-glow" id="modal-cta">REQUEST THIS STYLE</a>
+      </div>
+    </div>
+  </div>
+
+  
+
+
+  <!-- Login window -->
+  <div class="login-modal" id="login-modal" aria-hidden="true">
+    <div class="login-backdrop" data-login-close></div>
+    <div class="login-dialog" role="dialog" aria-modal="true" aria-labelledby="login-title">
+      <button type="button" class="login-close" data-login-close aria-label="Close login">✕</button>
+      <h3 class="login-title" id="login-title">Admin login</h3>
+      <p class="login-sub" id="login-sub">Restricted area. Administrators only.</p>
+      <form id="login-form" class="login-form" novalidate="false">
+        <div class="login-field">
+          <label for="login-email">ADMIN</label>
+          <input type="text" id="login-email" autocomplete="username" placeholder="Admin username" required />
+        </div>
+        <div class="login-field">
+          <div class="login-label-row"><label for="login-password">PASSWORD</label><button type="button" class="login-pw-toggle" id="login-pw-toggle">SHOW</button></div>
+          <input type="password" id="login-password" autocomplete="current-password" placeholder="Enter your password" required />
+        </div>
+        <button type="submit" class="login-submit" id="login-submit"><span>Log in</span></button>
+        <p class="login-msg" id="login-msg" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+<script type="module" src="firebase-login.js"></script>
+<script src="script.js"></script>
+
+</body></html>

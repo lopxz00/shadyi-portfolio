@@ -1,0 +1,1117 @@
+/* ==========================================================================
+   SHADYI ADMIN PANEL STYLESHEET
+   Cyberpunk / Dark Glassmorphism Control Center
+   ========================================================================== */
+
+:root {
+  --adm-bg: #030812;
+  --adm-surface: rgba(6, 16, 32, 0.88);
+  --adm-surface-card: rgba(10, 24, 46, 0.75);
+  --adm-surface-elevated: rgba(14, 32, 60, 0.95);
+  --adm-border: rgba(0, 229, 255, 0.22);
+  --adm-border-strong: rgba(0, 229, 255, 0.55);
+  --adm-accent: #00e5ff;
+  --adm-accent-hover: #38f8ff;
+  --adm-accent-glow: rgba(0, 229, 255, 0.4);
+  --adm-accent-subtle: rgba(0, 229, 255, 0.08);
+  --adm-danger: #ff334b;
+  --adm-danger-glow: rgba(255, 51, 75, 0.35);
+  --adm-success: #10b981;
+  --adm-warning: #f59e0b;
+  --adm-text-primary: #ffffff;
+  --adm-text-muted: rgba(210, 235, 255, 0.72);
+  --adm-text-dim: rgba(160, 195, 225, 0.45);
+  --adm-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --adm-font-display: 'Outfit', 'Syne', sans-serif;
+  --adm-font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ==========================================
+   1. FLOATING ADMIN DOCK (WHEN LOGGED IN)
+   ========================================== */
+.admin-dock {
+  position: fixed;
+  bottom: 22px;
+  right: 24px;
+  z-index: 9995;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: rgba(3, 9, 20, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--adm-border-strong);
+  border-radius: 999px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7), 0 0 25px var(--adm-accent-glow);
+  font-family: var(--adm-font-mono);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  user-select: none;
+}
+
+.admin-dock.hidden {
+  display: none !important;
+}
+
+.admin-dock-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  background: var(--adm-accent-subtle);
+  border: 1px solid var(--adm-border);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--adm-accent);
+}
+
+.admin-dock-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--adm-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--adm-accent);
+  animation: adminPulse 1.8s infinite;
+}
+
+@keyframes adminPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.admin-dock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  font-family: var(--adm-font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-dock-btn:hover {
+  background: var(--adm-accent-subtle);
+  border-color: var(--adm-border);
+  color: var(--adm-accent);
+  box-shadow: 0 0 14px var(--adm-accent-glow);
+}
+
+.admin-dock-btn.primary {
+  background: linear-gradient(135deg, var(--adm-accent) 0%, #0284c7 100%);
+  border: none;
+  color: #02060d;
+  font-weight: 700;
+  box-shadow: 0 0 18px var(--adm-accent-glow);
+}
+
+.admin-dock-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 26px var(--adm-accent);
+}
+
+.admin-dock-btn.danger {
+  color: #ff9494;
+}
+
+.admin-dock-btn.danger:hover {
+  background: rgba(255, 51, 75, 0.15);
+  border-color: rgba(255, 51, 75, 0.4);
+  color: #ff4d64;
+}
+
+.admin-dock-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--adm-danger);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+/* ==========================================
+   2. ADMIN PANEL OVERLAY & DRAWER
+   ========================================== */
+.admin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(1, 4, 10, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.admin-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Panel Container: Can be drawer or fullscreen */
+.admin-panel {
+  position: relative;
+  width: min(1080px, 100vw);
+  height: 100vh;
+  background: var(--adm-bg);
+  border-left: 1px solid var(--adm-border-strong);
+  box-shadow: -15px 0 60px rgba(0, 0, 0, 0.85), 0 0 40px var(--adm-accent-subtle);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), width 0.3s ease;
+  overflow: hidden;
+}
+
+.admin-overlay.open .admin-panel {
+  transform: translateX(0);
+}
+
+/* Side-by-side dock mode (split preview) */
+.admin-overlay.dock-mode {
+  background: transparent;
+  pointer-events: none;
+}
+
+.admin-overlay.dock-mode .admin-panel {
+  pointer-events: auto;
+  width: min(580px, 95vw);
+  box-shadow: -10px 0 50px rgba(0, 0, 0, 0.9);
+}
+
+/* Fullscreen mode */
+.admin-overlay.fullscreen-mode .admin-panel {
+  width: 100vw;
+  border-left: none;
+}
+
+/* ==========================================
+   3. ADMIN HEADER
+   ========================================== */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(4, 12, 24, 0.92);
+  border-bottom: 1px solid var(--adm-border);
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.admin-header-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-logo-badge {
+  font-family: var(--adm-font-display);
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.admin-badge-tag {
+  font-family: var(--adm-font-mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--adm-accent-subtle);
+  border: 1px solid var(--adm-border);
+  color: var(--adm-accent);
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--adm-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-icon-btn:hover {
+  background: var(--adm-accent-subtle);
+  border-color: var(--adm-border);
+  color: var(--adm-accent);
+}
+
+.admin-icon-btn.active {
+  background: var(--adm-accent);
+  color: #02060d;
+  border-color: var(--adm-accent);
+}
+
+.admin-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-close-btn:hover {
+  background: var(--adm-danger);
+  border-color: var(--adm-danger);
+  box-shadow: 0 0 16px var(--adm-danger-glow);
+  transform: rotate(90deg);
+}
+
+/* ==========================================
+   4. ADMIN BODY & SIDEBAR
+   ========================================== */
+.admin-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Sidebar Tabs */
+.admin-sidebar {
+  width: 220px;
+  background: rgba(3, 9, 18, 0.96);
+  border-right: 1px solid var(--adm-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 12px 8px;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.admin-sidebar-section {
+  font-family: var(--adm-font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--adm-text-dim);
+  padding: 10px 12px 4px;
+  text-transform: uppercase;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--adm-text-muted);
+  font-family: var(--adm-font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.admin-nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.admin-nav-item.active {
+  background: var(--adm-accent-subtle);
+  border-color: var(--adm-border);
+  color: var(--adm-accent);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--adm-accent);
+}
+
+.admin-nav-item-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.admin-nav-item svg {
+  width: 17px;
+  height: 17px;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.admin-nav-item.active svg {
+  opacity: 1;
+  color: var(--adm-accent);
+}
+
+.admin-sidebar-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ==========================================
+   5. ADMIN CONTENT VIEW AREA
+   ========================================== */
+.admin-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: radial-gradient(circle at top right, rgba(0, 229, 255, 0.03), transparent 60%);
+}
+
+.admin-tab-pane {
+  display: none;
+  flex-direction: column;
+  gap: 24px;
+  animation: adminFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-tab-pane.active {
+  display: flex;
+}
+
+@keyframes adminFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-pane-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-pane-title {
+  font-family: var(--adm-font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.admin-pane-subtitle {
+  font-size: 0.85rem;
+  color: var(--adm-text-muted);
+  margin-top: 4px;
+}
+
+/* ==========================================
+   6. CARDS, FORMS & CONTROLS
+   ========================================== */
+.admin-card {
+  background: var(--adm-surface-card);
+  border: 1px solid var(--adm-border);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.25s ease;
+}
+
+.admin-card:hover {
+  border-color: rgba(0, 229, 255, 0.38);
+}
+
+.admin-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-card-title {
+  font-family: var(--adm-font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-card-desc {
+  font-size: 0.8rem;
+  color: var(--adm-text-muted);
+}
+
+/* Form Groups & Inputs */
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.admin-label {
+  font-family: var(--adm-font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--adm-text-muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-label span.req {
+  color: var(--adm-danger);
+}
+
+.admin-input,
+.admin-textarea,
+.admin-select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(1, 6, 14, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-family: var(--adm-font-sans);
+  font-size: 0.88rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.admin-input:focus,
+.admin-textarea:focus,
+.admin-select:focus {
+  border-color: var(--adm-accent);
+  box-shadow: 0 0 16px var(--adm-accent-glow);
+  outline: none;
+  background: rgba(2, 10, 22, 0.9);
+}
+
+.admin-input::placeholder,
+.admin-textarea::placeholder {
+  color: var(--adm-text-dim);
+}
+
+.admin-textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Custom Toggle Switch */
+.admin-switch-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.admin-switch-info h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.admin-switch-info p {
+  font-size: 0.75rem;
+  color: var(--adm-text-muted);
+  margin-top: 2px;
+}
+
+.admin-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.admin-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.admin-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  transition: 0.3s;
+}
+
+.admin-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-switch input:checked + .admin-switch-slider {
+  background: var(--adm-accent);
+  box-shadow: 0 0 12px var(--adm-accent-glow);
+}
+
+.admin-switch input:checked + .admin-switch-slider:before {
+  transform: translateX(20px);
+  background-color: #02060d;
+}
+
+/* Range Sliders */
+.admin-range-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-range {
+  flex: 1;
+  accent-color: var(--adm-accent);
+  height: 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.admin-range-val {
+  font-family: var(--adm-font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--adm-accent);
+  min-width: 44px;
+  text-align: right;
+}
+
+/* Buttons */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-family: var(--adm-font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.admin-btn.primary {
+  background: linear-gradient(135deg, var(--adm-accent) 0%, #0284c7 100%);
+  color: #02060d;
+  border: none;
+  box-shadow: 0 0 18px var(--adm-accent-glow);
+}
+
+.admin-btn.primary:hover {
+  box-shadow: 0 0 28px var(--adm-accent);
+  transform: translateY(-1px);
+}
+
+.admin-btn.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.admin-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.admin-btn.danger {
+  background: rgba(255, 51, 75, 0.12);
+  border: 1px solid rgba(255, 51, 75, 0.3);
+  color: #ff5268;
+}
+
+.admin-btn.danger:hover {
+  background: var(--adm-danger);
+  color: #fff;
+  box-shadow: 0 0 20px var(--adm-danger-glow);
+}
+
+.admin-btn.sm {
+  padding: 6px 10px;
+  font-size: 0.7rem;
+}
+
+/* ==========================================
+   7. THEMES SELECTOR
+   ========================================== */
+.admin-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.admin-theme-card {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.admin-theme-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.admin-theme-card.active {
+  border-color: var(--adm-accent);
+  background: var(--adm-accent-subtle);
+  box-shadow: 0 0 22px var(--adm-accent-glow);
+}
+
+.admin-theme-swatch {
+  width: 100%;
+  height: 38px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-theme-name {
+  font-family: var(--adm-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ==========================================
+   8. PROJECT MANAGEMENT LIST & CARDS
+   ========================================== */
+.admin-projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-project-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(5, 15, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  gap: 14px;
+  transition: all 0.2s ease;
+}
+
+.admin-project-item:hover {
+  border-color: var(--adm-border);
+  background: rgba(8, 20, 40, 0.8);
+}
+
+.admin-project-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-project-thumb-preview {
+  width: 52px;
+  height: 40px;
+  border-radius: 6px;
+  background: #041424;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--adm-accent);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.admin-project-thumb-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-project-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-project-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-project-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: var(--adm-text-muted);
+}
+
+.admin-project-tag {
+  font-family: var(--adm-font-mono);
+  font-size: 0.62rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--adm-accent);
+}
+
+.admin-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ==========================================
+   9. INBOX & MESSAGES LIST
+   ========================================== */
+.admin-inbox-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.admin-stat-card {
+  padding: 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-stat-num {
+  font-family: var(--adm-font-display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.admin-stat-label {
+  font-size: 0.75rem;
+  color: var(--adm-text-muted);
+  text-transform: uppercase;
+  font-family: var(--adm-font-mono);
+}
+
+.admin-messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-message-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 18px;
+  background: rgba(6, 16, 32, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-message-item:hover {
+  background: rgba(10, 24, 48, 0.9);
+  border-color: var(--adm-border);
+}
+
+.admin-message-item.unread {
+  border-color: var(--adm-accent);
+  background: rgba(0, 229, 255, 0.04);
+  box-shadow: inset 3px 0 0 var(--adm-accent);
+}
+
+.admin-message-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-message-sender {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-message-badge-new {
+  font-family: var(--adm-font-mono);
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--adm-danger);
+  color: #fff;
+  font-weight: 800;
+}
+
+.admin-message-date {
+  font-family: var(--adm-font-mono);
+  font-size: 0.7rem;
+  color: var(--adm-text-dim);
+}
+
+.admin-message-snippet {
+  font-size: 0.82rem;
+  color: var(--adm-text-muted);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ==========================================
+   10. MODAL DIALOGS (FOR ADD/EDIT & INBOX READ)
+   ========================================== */
+.admin-submodal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(1, 4, 10, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.admin-submodal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.admin-submodal-dialog {
+  position: relative;
+  width: min(650px, 100%);
+  max-height: 90vh;
+  background: var(--adm-surface-elevated);
+  border: 1px solid var(--adm-border-strong);
+  border-radius: 16px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 50px var(--adm-accent-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-submodal.open .admin-submodal-dialog {
+  transform: none;
+}
+
+.admin-submodal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-submodal-title {
+  font-family: var(--adm-font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.admin-submodal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-submodal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(3, 8, 16, 0.6);
+}
+
+/* ==========================================
+   11. TOAST NOTIFICATIONS
+   ========================================== */
+.admin-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 10005;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.admin-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: rgba(4, 14, 28, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--adm-border);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--adm-accent-glow);
+  color: #fff;
+  font-size: 0.84rem;
+  font-family: var(--adm-font-sans);
+  animation: adminToastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  max-width: 360px;
+}
+
+.admin-toast.success {
+  border-color: var(--adm-success);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.admin-toast.error {
+  border-color: var(--adm-danger);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--adm-danger-glow);
+}
+
+@keyframes adminToastIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ==========================================
+   12. RESPONSIVE MEDIA QUERIES
+   ========================================== */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 60px;
+    padding: 8px 4px;
+  }
+  .admin-sidebar-section,
+  .admin-nav-item span:not(.admin-dock-count) {
+    display: none;
+  }
+  .admin-nav-item {
+    justify-content: center;
+    padding: 10px;
+  }
+  .admin-header {
+    padding: 12px 16px;
+  }
+  .admin-content {
+    padding: 16px;
+  }
+  .admin-dock {
+    bottom: 14px;
+    right: 14px;
+    gap: 4px;
+    padding: 5px 8px;
+  }
+  .admin-dock-btn span:not(.admin-dock-count) {
+    display: none;
+  }
+}
+
+/* Admin active badge style on navbar */
+.login-open-btn.admin-active-badge {
+  background: linear-gradient(135deg, var(--adm-accent) 0%, #0284c7 100%) !important;
+  color: #02060d !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 20px var(--adm-accent-glow) !important;
+}
